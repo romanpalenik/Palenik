@@ -10,7 +10,7 @@ for(int j=0;potrebny_udaj[j]!='\n';j++) printf("%c",potrebny_udaj[j]);
 printf(" ");
 }
 
-int vypis(FILE **smernik_na_subor,int *otvoreny_subor) //argumentami funckie sú smerník na otvorený súbor, s ktorým ďalej následne pracujem a premenná, ktorá kontroluje, či som zavrel súbor
+int vypis_celeho_suboru(FILE **smernik_na_subor) //argumentami funckie sú smerník na otvorený súbor, s ktorým ďalej následne pracujem a premenná, ktorá kontroluje, či som zavrel súbor
 {
 FILE *subor;
 subor=fopen("autobazar.txt","r");
@@ -45,8 +45,7 @@ getc(subor);
       }
 
 *smernik_na_subor=subor;
-*otvoreny_subor=1; //aby som v maine vedel, ze sa otvoril subor
-return 0;
+return 1;
 }
 
 
@@ -80,7 +79,7 @@ while((c=getc(*smernik_na_subor))!=EOF) //načítavam všetky informácie z kaž
     }
 }
 
-void vypis_SPZ(FILE **smernik_na_subor,char **pole,int *existencnik_pola)
+int vypis_SPZ(FILE **smernik_na_subor,char **pole)
 {
 rewind(*smernik_na_subor);
 double cena;
@@ -103,7 +102,7 @@ pocitadlo++;
 *pole=(char*)malloc(pocitadlo*8*sizeof(char)); //alokovanie pamäte v poli, do ktorého následne zapíšem požadované údaje, čiže ŠPZ, rovno ho vytvorí také veľké, ako má byť aby sa do neho zmestili všetky ŠPZ-tky
 *pole=nove_pole; // prepis do poľa v maine
 printf("\n");
-*existencnik_pola=1; // zmenenie stavu premenej, ktorá kontroluje vytvorenie poľa
+return 1; // zmenenie stavu premenej, ktorá kontroluje vytvorenie poľa
 
 }
 
@@ -195,28 +194,28 @@ for(int i=1;**pole!='\0';i++)
 int main()
 {
 
-int otvoreny_subor=0;
+int kontrola_otvoreneho_subor=0;
 char *pole;
 char vstup;
-int datum,spustac=1;
+int datum;
 int existencnik_pola=0;
 FILE *smernik_na_subor=NULL;
-while(spustac){
+while(1){ //bude to nacitavat stale a funkcia k to cele prerusi returnom 0
 scanf("%c",&vstup); // zadávanie vstupu som vyriešil cez switch
 switch(vstup)
 {
 
 case('v'):
-    vypis(&smernik_na_subor,&otvoreny_subor);
+    kontrola_otvoreneho_subor=vypis_celeho_suboru(&smernik_na_subor);
     break;
 
 case ('o'):
     scanf("%d",&datum); // zadanie dátumu po príkaze o
-    if(otvoreny_subor) odmena(datum,&smernik_na_subor);
+    if(kontrola_otvoreneho_subor) odmena(datum,&smernik_na_subor);
     break;
 
 case('n'):
-    if(otvoreny_subor) vypis_SPZ(&smernik_na_subor,&pole,&existencnik_pola);
+    if(kontrola_otvoreneho_subor) existencnik_pola=vypis_SPZ(&smernik_na_subor,&pole);
     break;
 
 case('s'):
@@ -235,11 +234,10 @@ case('p'):
     break;
 
 case('k'): // ak je otvorený súbor tak ho tento výber switchu zavrie a následne preruší progra
-    if(otvoreny_subor==1) fclose(smernik_na_subor);
+    if(kontrola_otvoreneho_subor==1) fclose(smernik_na_subor);
     return 0;
     break;
 
 }
 }
-return 0;
 }
