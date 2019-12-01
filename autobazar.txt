@@ -1,0 +1,47 @@
+Karol Velky
+BA353AB
+1
+23455.25
+20181122
+
+Maria Razusova Martakova
+SC128BD
+0
+1352.00
+20190101
+
+Jean Claude Van Damme
+BL585LB
+0
+5211.80
+20190615
+
+Hilda Mudra
+BA858BA
+1
+59834.77
+20180628
+
+Vincent Van Gogh
+SC321DC
+1
+11352.00
+20180110
+
+Hilda Mudra
+PK421AO
+1
+29179.52
+20180628
+
+Vincent Van Gogh
+SA323AS
+0
+4352.00
+20180110
+
+Hilda Mudra
+MA123SC
+0
+9832.28
+20180628
