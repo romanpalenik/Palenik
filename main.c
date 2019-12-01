@@ -4,6 +4,12 @@
 #include <string.h>
 
 
+void vypis_potrebnych_dajov(char potrebny_udaj[])
+{
+for(int j=0;potrebny_udaj[j]!='\n';j++) printf("%c",potrebny_udaj[j]);
+printf(" ");
+}
+
 int vypis(FILE **smernik_na_subor,int *otvoreny_subor) //argumentami funckie sú smerník na otvorený súbor, s ktorým ďalej následne pracujem a premenná, ktorá kontroluje, či som zavrel súbor
 {
 FILE *subor;
@@ -21,7 +27,7 @@ while((c=getc(subor))!=EOF)
     {
 if(testovac==0) testovac=1; //písanie nový riadkov medzi záznamami
 else printf("\n");
-
+//výpis toho čo sa nachádza v súbore
 ungetc(c,subor);
 fgets(meno,50,subor);
 printf("meno priezvisko: %s",meno);
@@ -34,11 +40,13 @@ printf("\ncena: %.2lf",cena);
 fscanf(subor,"%d",&datum_predaja);
 printf("\ndatum: %d\n",datum_predaja);
 
-c=getc(subor);
+c=getc(subor); //toto načítavanie ta je kvôli koncom riadkov
 getc(subor);
       }
+
 *smernik_na_subor=subor;
-*otvoreny_subor=1;
+*otvoreny_subor=1; //aby som v maine vedel, ze sa otvoril subor
+return 0;
 }
 
 
@@ -48,28 +56,28 @@ rewind(*smernik_na_subor); //potrebujem smerník na súbor vrátiť na prvé pí
 double cena;
 int typ_auta,datum_predaja;
 char meno[50],SPZ[10],c;
-while((c=getc(*smernik_na_subor))!=EOF){ //načítavam všetky informácie z každého záznamu a naśledne ak je splnená podmienka tak ich vypíšem v požadovanom tvare
-ungetc(c,*smernik_na_subor);
-fgets(meno,50,*smernik_na_subor);
-fgets(SPZ,10,*smernik_na_subor);
-fscanf(*smernik_na_subor,"%d",&typ_auta);
-fscanf(*smernik_na_subor,"%lf",&cena);
-fscanf(*smernik_na_subor,"%d",&datum_predaja);
-c=getc(*smernik_na_subor);
-getc(*smernik_na_subor);
-if(datum-datum_predaja>10000) //požadovanom je rok 10000, čiže ak je to viac ako 10 000 vypíše sa odmena a kto ju má dostať
-    {
-    for(int j=0;meno[j]!='\n';j++) printf("%c",meno[j]);
-    printf(" ");
-    for(int k=0;SPZ[k]!='\n';k++) printf("%c",SPZ[k]);
-    printf(" ");
-    if(typ_auta==1)
+while((c=getc(*smernik_na_subor))!=EOF) //načítavam všetky informácie z každého záznamu a naśledne ak je splnená podmienka tak ich vypíšem v požadovanom tvare
+{
+
+    ungetc(c,*smernik_na_subor);
+    fgets(meno,50,*smernik_na_subor);
+    fgets(SPZ,10,*smernik_na_subor);
+    fscanf(*smernik_na_subor,"%d",&typ_auta);
+    fscanf(*smernik_na_subor,"%lf",&cena);
+    fscanf(*smernik_na_subor,"%d",&datum_predaja);
+    c=getc(*smernik_na_subor);
+    getc(*smernik_na_subor);
+    if(datum-datum_predaja>10000) //požadovanom je rok 10000, čiže ak je to viac ako 10 000 vypíše sa odmena a kto ju má dostať
         {
-        printf("%.2f\n",cena*0.023);
+        vypis_potrebnych_dajov(meno);
+        vypis_potrebnych_dajov(SPZ);
+
+
+        if(typ_auta==1) printf("%.2f\n",cena*0.023);
+        else printf("%.2f\n",cena*0.051);
+
         }
-    else printf("%.2f\n",cena*0.051);
     }
-}
 }
 
 void vypis_SPZ(FILE **smernik_na_subor,char **pole,int *existencnik_pola)
@@ -83,7 +91,7 @@ while((c=getc(*smernik_na_subor))!=EOF)
     {
 ungetc(c,*smernik_na_subor);
 fgets(meno,50,*smernik_na_subor);
-fscanf(*smernik_na_subor,"%[^\n]",&SPZ);
+fscanf(*smernik_na_subor,"%[^\n]s",SPZ);
 fscanf(*smernik_na_subor,"%d",&typ_auta);
 fscanf(*smernik_na_subor,"%lf",&cena);
 fscanf(*smernik_na_subor,"%d",&datum_predaja);
@@ -101,7 +109,8 @@ printf("\n");
 
 void print_SPZ(char **pole)
 {
-int pocitadlo_znakov=0,prvy_interval=1,**smernik_na_prvu_poziciu_pola=*pole; //na konci aby som ďalej mohol pracovať s poľom, musím znova smerník na to pole nastaviť na prvú pozíciu
+int pocitadlo_znakov=0,prvy_interval=1;
+char **smernik_na_prvu_poziciu_pola=*pole; //na konci aby som ďalej mohol pracovať s poľom, musím znova smerník na to pole nastaviť na prvú pozíciu
 for(int i=0;**pole!='\0';i++)
     {
     pocitadlo_znakov++;
@@ -185,16 +194,18 @@ for(int i=1;**pole!='\0';i++)
 
 int main()
 {
+
 int otvoreny_subor=0;
-char **pole;
+char *pole;
 char vstup;
-int datum,premena,spustac=1;
+int datum,spustac=1;
 int existencnik_pola=0;
 FILE *smernik_na_subor=NULL;
 while(spustac){
 scanf("%c",&vstup); // zadávanie vstupu som vyriešil cez switch
 switch(vstup)
 {
+
 case('v'):
     vypis(&smernik_na_subor,&otvoreny_subor);
     break;
