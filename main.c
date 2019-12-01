@@ -2,12 +2,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#define JEDEN_ROK 10000 // v tomto prípade je jeden rok 10 000
 
 void vypis_potrebnych_dajov(char potrebny_udaj[])
 {
 for(int j=0;potrebny_udaj[j]!='\n';j++) printf("%c",potrebny_udaj[j]);
 printf(" ");
+}
+
+void najdi_max(int histogram_p[])
+{
+    int max=histogram_p[0],int index=0;
+    for(int k=0;k<26;k++) //for cyklus na výber najčastejšie sa objavujúcej hodnoty
+    {
+    if(histogram_p[k]>max)
+        {
+        max=histogram_p[k];
+        index=k;
+        }
+    }
+printf("%c %d",65+index,max);
 }
 
 int vypis_celeho_suboru(FILE **smernik_na_subor) //argumentami funckie sú smerník na otvorený súbor, s ktorým ďalej následne pracujem a premenná, ktorá kontroluje, či som zavrel súbor
@@ -21,12 +35,11 @@ if(subor==NULL)
     }
 
 double cena;
-int typ_auta,datum_predaja,testovac=0;
+int typ_auta,datum_predaja;
 char meno[50],SPZ[10],c;
 while((c=getc(subor))!=EOF)
     {
-if(testovac==0) testovac=1; //písanie nový riadkov medzi záznamami
-else printf("\n");
+
 //výpis toho čo sa nachádza v súbore
 ungetc(c,subor);
 fgets(meno,50,subor);
@@ -39,9 +52,9 @@ fscanf(subor,"%lf",&cena);
 printf("\ncena: %.2lf",cena);
 fscanf(subor,"%d",&datum_predaja);
 printf("\ndatum: %d\n",datum_predaja);
-
 c=getc(subor); //toto načítavanie ta je kvôli koncom riadkov
 getc(subor);
+printf("\n");
       }
 
 *smernik_na_subor=subor;
@@ -66,11 +79,10 @@ while((c=getc(*smernik_na_subor))!=EOF) //načítavam všetky informácie z kaž
     fscanf(*smernik_na_subor,"%d",&datum_predaja);
     c=getc(*smernik_na_subor);
     getc(*smernik_na_subor);
-    if(datum-datum_predaja>10000) //požadovanom je rok 10000, čiže ak je to viac ako 10 000 vypíše sa odmena a kto ju má dostať
+    if(datum-datum_predaja>JEDEN_ROK) //ak tam pracoval viac ako rok
         {
         vypis_potrebnych_dajov(meno);
         vypis_potrebnych_dajov(SPZ);
-
 
         if(typ_auta==1) printf("%.2f\n",cena*0.023);
         else printf("%.2f\n",cena*0.051);
@@ -79,7 +91,7 @@ while((c=getc(*smernik_na_subor))!=EOF) //načítavam všetky informácie z kaž
     }
 }
 
-int vypis_SPZ(FILE **smernik_na_subor,char **pole)
+int nacitanie_SPZ_do_pola(FILE **smernik_na_subor,char **pole)
 {
 rewind(*smernik_na_subor);
 double cena;
@@ -98,7 +110,7 @@ c=getc(*smernik_na_subor);
 getc(*smernik_na_subor);
 strcat(nove_pole,SPZ);
 pocitadlo++;
-}
+    }
 *pole=(char*)malloc(pocitadlo*8*sizeof(char)); //alokovanie pamäte v poli, do ktorého následne zapíšem požadované údaje, čiže ŠPZ, rovno ho vytvorí také veľké, ako má byť aby sa do neho zmestili všetky ŠPZ-tky
 *pole=nove_pole; // prepis do poľa v maine
 printf("\n");
@@ -106,7 +118,7 @@ return 1; // zmenenie stavu premenej, ktorá kontroluje vytvorenie poľa
 
 }
 
-void print_SPZ(char **pole)
+void vypis_SPZ(char **pole)
 {
 int pocitadlo_znakov=0,prvy_interval=1;
 char **smernik_na_prvu_poziciu_pola=*pole; //na konci aby som ďalej mohol pracovať s poľom, musím znova smerník na to pole nastaviť na prvú pozíciu
@@ -137,6 +149,7 @@ for(int j=0;j<26;j++) //vynulovanie všetkých pozícii
     {
     histogram_p[j]=0;
     }
+
 for(int i=0;**pole!='\0';i++)
     {
     if(**pole>='A' && **pole<='Z')
@@ -145,16 +158,16 @@ for(int i=0;**pole!='\0';i++)
         }
     ++*pole;
     }
-max=histogram_p[0];
-for(int k=0;k<26;k++) //for cyklus na výber najčastejšie sa objavujúcej hodnoty
+najdi_max(histogram_p);
+/*for(int k=0;k<26;k++) //for cyklus na výber najčastejšie sa objavujúcej hodnoty
     {
     if(histogram_p[k]>max)
         {
         max=histogram_p[k];
         index=k;
         }
-    }
-printf("%c %d",65+index,max);
+    }*/
+//printf("%c %d",65+index,max);
 printf("\n");
 *pole=smernik_na_prvu_poziciu_pola;
 }
@@ -215,12 +228,12 @@ case ('o'):
     break;
 
 case('n'):
-    if(kontrola_otvoreneho_subor) existencnik_pola=vypis_SPZ(&smernik_na_subor,&pole);
+    if(kontrola_otvoreneho_subor) existencnik_pola=nacitanie_SPZ_do_pola(&smernik_na_subor,&pole);
     break;
 
 case('s'):
     if(existencnik_pola==0) printf("Pole nie je vytvorene\n"); // ak pole nebolo vytvorené vypíše sa Pole nie je vytvorene a nesputí funkciu
-    else print_SPZ(&pole);
+    else vypis_SPZ(&pole);
     break;
 
 case('m'):
