@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #define JEDEN_ROK 10000 // v tomto prípade je jeden rok 10 000
+#define VELKOST_SPZ 7
 
 void vypis_potrebnych_dajov(char potrebny_udaj[])
 {
@@ -10,9 +11,9 @@ for(int j=0;potrebny_udaj[j]!='\n';j++) printf("%c",potrebny_udaj[j]);
 printf(" ");
 }
 
-void najdi_max(int histogram_p[])
+void vypis_max(int histogram_p[])
 {
-    int max=histogram_p[0],int index=0;
+    int max=histogram_p[0],index=0;
     for(int k=0;k<26;k++) //for cyklus na výber najčastejšie sa objavujúcej hodnoty
     {
     if(histogram_p[k]>max)
@@ -96,7 +97,7 @@ int nacitanie_SPZ_do_pola(FILE **smernik_na_subor,char **pole)
 rewind(*smernik_na_subor);
 double cena;
 int typ_auta,datum_predaja,pocitadlo=0;
-char meno[50],SPZ[7],c,*nove_pole;
+char meno[50],SPZ[VELKOST_SPZ],c,*nove_pole;
 nove_pole=(char*)calloc(100,sizeof(char));
 while((c=getc(*smernik_na_subor))!=EOF)
     {
@@ -144,7 +145,7 @@ printf("\n");
 void histogram(char **pole)
 {
 int **smernik_na_prvu_poziciu_pola=*pole;
-int histogram_p[26],max,index=0; //histogram mi ráta koľko sa tam aké písmeno obrajví preto je veĺkosti 26
+int histogram_p[26]; //histogram mi ráta koľko sa tam aké písmeno obrajví preto je veĺkosti 26
 for(int j=0;j<26;j++) //vynulovanie všetkých pozícii
     {
     histogram_p[j]=0;
@@ -158,16 +159,9 @@ for(int i=0;**pole!='\0';i++)
         }
     ++*pole;
     }
-najdi_max(histogram_p);
-/*for(int k=0;k<26;k++) //for cyklus na výber najčastejšie sa objavujúcej hodnoty
-    {
-    if(histogram_p[k]>max)
-        {
-        max=histogram_p[k];
-        index=k;
-        }
-    }*/
-//printf("%c %d",65+index,max);
+
+vypis_max(histogram_p);
+
 printf("\n");
 *pole=smernik_na_prvu_poziciu_pola;
 }
@@ -183,7 +177,7 @@ for(int i=1;**pole!='\0';i++)
     SPZ[index-1]=**pole;
     ++*pole;
     index++;
-    if(i%7==0 && i!=0) //po každej 7-dmici, čiže SPZ skontroluje či je palindrom
+    if(i%VELKOST_SPZ==0 && i!=0) //po každej 7-dmici, čiže SPZ skontroluje či je palindrom
         {
         index=1;
         int palindr=1;
